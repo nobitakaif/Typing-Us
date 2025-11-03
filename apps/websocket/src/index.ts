@@ -1,0 +1,19 @@
+import { WebSocketServer } from "ws";
+
+const wss = new WebSocketServer({port : 8080},()=>{
+    console.log("wesbsocket server is running on port 8080")
+})
+
+wss.on("connection",(ws)=>{
+    ws.on("error", console.error)
+    ws.on("message",(data: string)=>{
+        if(data == "ping"){
+            ws.send("pong")
+        }
+        else{
+            ws.send("ghanta")
+        }
+        
+    })
+    
+})
