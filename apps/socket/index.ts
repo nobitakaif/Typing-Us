@@ -24,12 +24,17 @@ Bun.serve({
             const stream = audio.stream()
             const reader = stream.getReader()
             console.log(audio.type)
+            const sleep = (ms: number) =>{
+                new Promise(resolve => setTimeout(resolve, ms));
+            }
             while(true){
                 const {value, done} = await reader.read()
                 if(done){
                     break
                 }
                 ws.send(value)
+                console.log(`receiving data.... ${Date.now()}`)
+                await Bun.sleep(1000)
             }
             ws.send("end")
         },
@@ -40,5 +45,6 @@ Bun.serve({
             console.log("this is ws : ",ws)
             ws.send(`code ${code},  reason ${reason}`)
         },
+        
     }
 })
