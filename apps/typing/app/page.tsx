@@ -3,35 +3,77 @@
 import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [data, setData] = useState<string[]>([])
+  const [index, setIndex] = useState(0)
+  const [results, setResults] = useState<("correct" | "wrong")[]>([])
 
-  const [data, setData] = useState()
+  // WebSocket
+  useEffect(() => {
+    const ws = new WebSocket("ws://localhost:8000")
 
-  useEffect(()=>{
-    const ws = new WebSocket('ws://localhost:8000')
-    ws.addEventListener('open',(e)=>{
-      console.log(e)
-      console.log("inside open")
-    })
-    ws.addEventListener('message',(e)=>{
+    ws.onmessage = (e) => {
       const obj = JSON.parse(e.data)
-      console.log(obj.success)
-      if(obj.success == true){
-        console.log(obj.data)
-        console.log(obj.success)
-        setData(obj.data)
+
+      if (obj.success) {
+        const textArray = obj.data.split("")
+        setData(textArray)
+        setIndex(0)
+        setResults([]) // reset results
       }
-      
-      console.log("inside message")      
-    })
-    ws.addEventListener('error',(e)=>{
-      console.log(e)
-      console.log("inside error")
-    })
-  },[])
-  
+    }
+
+    return () => ws.close()
+  }, [])
+
+  // Keyboard
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!data.length) return
+      if (index >= data.length) return
+
+      const expectedChar = data[index]
+
+      setResults((prev) => {
+        const newResults = [...prev]
+
+        if (e.key === expectedChar) {
+          newResults[index] = "correct"
+        } else {
+          newResults[index] = "wrong"
+        }
+
+        return newResults
+      })
+
+      setIndex((prev) => prev + 1) // move cursor always
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [data, index])
+
   return (
-    <div className="text-white">
-      {data}
-    </div>  
-  );
+    <div className="text-white text-2xl">
+      {data.map((char, idx) => {
+        let color = ""
+
+        if (results[idx] === "correct") {
+          color = "text-green-400"
+        }
+
+        if (results[idx] === "wrong") {
+          color = "text-red-400"
+        }
+
+        return (
+          <span
+            key={idx}
+            className={`${color} ${idx === index ? "underline" : ""}`}
+          >
+            {char === " " ? "\u00A0" : char}
+          </span>
+        )
+      })}
+    </div>
+  )
 }
