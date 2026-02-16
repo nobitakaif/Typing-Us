@@ -1,8 +1,10 @@
 "use client"
 import { useState, useEffect, useCallback, useRef } from "react";
 import { generateWords, calculateWPM, calculateAccuracy } from "@/lib/words";
-import Results from "@/components/Results";
+import Results from "./result";
 import { RotateCcw } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useRouter } from "next/router";
 
 const TypingTest = () => {
   const { duration } = useParams<{ duration: string }>();
@@ -76,7 +78,7 @@ const TypingTest = () => {
   const restart = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = null;
-    navigate.push(0); // reload route
+    navigate.push(""); // reload route
   };
 
   const wpm = calculateWPM(correctChars, totalTime);

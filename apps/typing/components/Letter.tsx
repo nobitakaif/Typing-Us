@@ -5,7 +5,6 @@ export function Letter({children, isPressed, isActive} : {children:React.ReactNo
             ${isPressed ?"text-green-400" : ""}
             ${isActive ? "underline" : ""}
         `}>
-
-        {children}
+        {children }
     </span>
 } 
